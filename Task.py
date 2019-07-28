@@ -1,15 +1,10 @@
+import pika
 import time
+from multiprocessing import current_process
+from abc import ABC, abstractmethod
 
 
-class TaskBase:
-    id = None
-    name = None
-    description = None
-    parallel_limit = None
-    time_limit = None
-    input = None
-    output = None
-
+class TaskBase(ABC):
     def __init__(self, id, name, description, parallel_limit, time_limit):
         self.id = id
         self.name = name
@@ -19,6 +14,20 @@ class TaskBase:
         self.input = None
         self.output = []
 
+    def consume(self, process_id):
+        print('{0} is running: {1}'.format(self.name, process_id))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        channel = connection.channel()
+
+        channel.queue_declare(queue=self.input, durable=True)
+        channel.basic_consume(queue=self.input, on_message_callback=self.perform_operation, auto_ack=True)
+
+        channel.start_consuming()
+
+    @abstractmethod
+    def perform_operation(self, ch, method, properties, body):
+        pass
+
 
 class TaskAdd(TaskBase):
     def __init__(self, id, name, description):
@@ -26,12 +35,17 @@ class TaskAdd(TaskBase):
             id=id,
             name=name,
             description=description,
-            parallel_limit=10,
-            time_limit=2
+            parallel_limit=1,
+            time_limit=1
         )
 
-    def perform_operation(self):
-        print('{} implementation'.format(self.name))
+    def perform_operation(self, ch, method, properties, body):
+        try:
+            print('{0} implementation: [{1}]'.format(self.name, current_process()))
+            print("received %r" % body)
+            time.sleep(self.time_limit)
+        except Exception as e:
+            print("caught exception %r" % e)
 
 
 class TaskSubtract(TaskBase):
@@ -40,12 +54,17 @@ class TaskSubtract(TaskBase):
             id=id,
             name=name,
             description=description,
-            parallel_limit=6,
-            time_limit=10
+            parallel_limit=2,
+            time_limit=1
         )
 
-    def perform_operation(self):
-        print('{} implementation'.format(self.name))
+    def perform_operation(self, ch, method, properties, body):
+        try:
+            print('{} implementation'.format(self.name))
+            print("received %r" % body)
+            time.sleep(self.time_limit)
+        except Exception as e:
+            print("caught exception %r" % e)
 
 
 class TaskProduct(TaskBase):
@@ -54,12 +73,17 @@ class TaskProduct(TaskBase):
             id=id,
             name=name,
             description=description,
-            parallel_limit=2,
-            time_limit=15
+            parallel_limit=3,
+            time_limit=1
         )
 
-    def perform_operation(self):
-        print('{} implementation'.format(self.name))
+    def perform_operation(self, ch, method, properties, body):
+        try:
+            print('{} implementation'.format(self.name))
+            print("received %r" % body)
+            time.sleep(self.time_limit)
+        except Exception as e:
+            print("caught exception %r" % e)
 
 
 class TaskDivision(TaskBase):
@@ -68,9 +92,14 @@ class TaskDivision(TaskBase):
             id=id,
             name=name,
             description=description,
-            parallel_limit=3,
-            time_limit=4
+            parallel_limit=2,
+            time_limit=1
         )
 
-    def perform_operation(self):
-        print('{} implementation'.format(self.name))
+    def perform_operation(self, ch, method, properties, body):
+        try:
+            print('{} implementation'.format(self.name))
+            print("received %r" % body)
+            time.sleep(self.time_limit)
+        except Exception as e:
+            print("caught exception %r" % e)

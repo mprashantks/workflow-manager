@@ -1,4 +1,16 @@
 from Workflow import Workflow
+import multiprocessing
+
+
+def start_tasks(workflow):
+    pool = multiprocessing.Pool(processes=workflow.parallel_limit)
+
+    for task in workflow.tasks.values():
+        for i in range(task.parallel_limit):
+            pool.apply_async(task.consume, args=(i,))
+
+    pool.close()
+    pool.join()
 
 
 if __name__ == '__main__':
@@ -24,3 +36,4 @@ if __name__ == '__main__':
     workflow = Workflow(name='test')
     workflow.create_workflow(user_input=ui_input)
 
+    start_tasks(workflow)

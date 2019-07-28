@@ -3,22 +3,15 @@ from constants import *
 
 
 class Workflow:
-    id = None
-    name = None
-    input = None
-    num_output = None
-    output = None
-    tasks = None
-    processed_tasks = None
-
     def __init__(self, name):
         self.id = int(time.time())
         self.name = name
-        self.input = 'wf.{}.in'.format(self.id)
+        self.input = 'wf.{}.in'.format(self.name)
         self.num_output = 0
         self.output = []
         self.tasks = dict()
         self.processed_tasks = set()
+        self.parallel_limit = 0
 
     @staticmethod
     def _get_connected_tasks(task, task_relationship):
@@ -62,6 +55,7 @@ class Workflow:
 
         task_obj.input = task_input
         self.processed_tasks.add(task)
+        self.parallel_limit += task_obj.parallel_limit
         return task_obj
 
     def _create_relationships(self, task, task_input, task_relationship, task_info):
