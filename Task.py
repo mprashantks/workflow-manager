@@ -24,8 +24,8 @@ class TaskBase(ABC):
         print('{0}({1}) running: [{2}]'.format(self.name, self.description, current_process()))
         connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
         self.channel = connection.channel()
-        self.channel.queue_declare(queue=self.input, durable=True)
-        self.channel.basic_consume(queue=self.input, on_message_callback=self.perform_operation, auto_ack=True)
+        self.channel.queue_declare(queue=self.input.get('out'), durable=True)
+        self.channel.basic_consume(queue=self.input.get('out'), on_message_callback=self.perform_operation, auto_ack=True)
         self.channel.start_consuming()
 
     def perform_operation(self, ch, method, properties, body):
@@ -45,8 +45,20 @@ class TaskBase(ABC):
 
     def _update_output_queue(self, data):
         for output in self.output:
-            self.channel.queue_declare(queue=output, durable=True)
-            self.channel.basic_publish(exchange='', routing_key=output, body=data)
+            if self._satisfy_condition(output, data):
+                self.channel.queue_declare(queue=output.get('out'), durable=True)
+                self.channel.basic_publish(exchange='', routing_key=output.get('out'), body=json.dumps(data))
+
+    @staticmethod
+    def _satisfy_condition(output, data):
+        if (
+                (output.get('con') is None) or
+                (output.get('con') == '<' and data.get('n1') < data.get('n2')) or
+                (output.get('con') == '>' and data.get('n1') > data.get('n2')) or
+                (output.get('con') == '=' and data.get('n1') == data.get('n2'))
+        ):
+            return True
+        return False
 
     def _update_fault_queue(self, data):
         self.channel.queue_declare(queue=self.fault_output, durable=True)
@@ -67,7 +79,7 @@ class TaskAdd(TaskBase):
         result = data.get('n1') + data.get('n2')
         data['n1'] = result
         data['n2'] = result*2
-        return json.dumps(data)
+        return data
 
 
 class TaskSubtract(TaskBase):
@@ -84,7 +96,7 @@ class TaskSubtract(TaskBase):
         result = data.get('n1') - data.get('n2')
         data['n1'] = result
         data['n2'] = result/2
-        return json.dumps(data)
+        return data
 
 
 class TaskProduct(TaskBase):
@@ -101,7 +113,7 @@ class TaskProduct(TaskBase):
         result = data.get('n1') * data.get('n2')
         data['n1'] = result
         data['n2'] = result+2
-        return json.dumps(data)
+        return data
 
 
 class TaskDivision(TaskBase):
@@ -118,4 +130,4 @@ class TaskDivision(TaskBase):
         result = data.get('n1') / data.get('n2')
         data['n1'] = result
         data['n2'] = result*2
-        return json.dumps(data)
+        return data

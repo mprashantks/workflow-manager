@@ -11,7 +11,7 @@ channel = connection.channel()
 # Workflow input queue
 channel.queue_declare(queue='wf.test.in', durable=True)
 
-for i in range(5):
+for i in range(10):
 
     # Test with good input and bad input
     # Good input consists of two numbers, n1 and n2 (Will be processed correctly)
@@ -19,22 +19,22 @@ for i in range(5):
     choice = [
         {
             'id': i,
-            'n1': random.randint(1, 10),
-            'n2': random.randint(1, 10)
+            'n1': random.randint(1, 100),
+            'n2': random.randint(1, 100)
         },
         {
             'id': i,
-            'n1': random.randint(1, 10),
-            'n2': random.randint(1, 10)
+            'n1': random.randint(1, 100),
+            'n2': random.randint(1, 100)
         },
         {
             'id': i,
-            'n1': random.randint(1, 10),
-            'n2': random.randint(1, 10)
+            'n1': random.randint(1, 100),
+            'n2': random.randint(1, 100)
         },
         {
             'id': i,
-            'n1': random.randint(1, 10)
+            'n1': random.randint(1, 100)
         }
     ]
 

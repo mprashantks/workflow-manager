@@ -94,21 +94,27 @@ class Workflow:
             connected_tasks = self._get_connected_tasks(task=task, task_relationship=task_relationship)
 
             for index, connected_task in enumerate(connected_tasks):
-                if self._is_task_processed(task=connected_task):
+                if self._is_task_processed(task=connected_task.get('out')):
                     # Take already existing queue
-                    task_obj.output.append(self.tasks.get(connected_task).input)
+                    task_obj.output.append(self.tasks.get(connected_task.get('out')).input)
                 else:
-                    task_obj_output = 'tk.{0}.out.{1}'.format(task_obj.id, index + 1)
+                    task_obj_output = {
+                        'con': connected_task.get('con'),
+                        'out': 'tk.{0}.out.{1}'.format(task_obj.id, index + 1)
+                    }
                     task_obj.output.append(task_obj_output)
                     self._create_relationships(
-                        task=connected_task,
+                        task=connected_task.get('out'),
                         task_input=task_obj_output,
                         task_relationship=task_relationship,
                         task_info=task_info
                     )
 
             if not task_obj.output:
-                task_obj_output = 'wf.{0}.out.{1}'.format(self.name, self.num_output+1)
+                task_obj_output = {
+                    'con': None,
+                    'out': 'wf.{0}.out.{1}'.format(self.name, self.num_output+1)
+                }
                 task_obj.output.append(task_obj_output)
                 self.output.append(task_obj_output)
                 self.num_output += 1
@@ -129,7 +135,7 @@ class Workflow:
         '''
         self._create_relationships(
             task=user_input.get('start_task'),
-            task_input=self.input,
+            task_input={'con': None, 'out': self.input},
             task_relationship=user_input.get('task_relationship'),
             task_info=user_input.get('task_info')
         )

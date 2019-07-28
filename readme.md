@@ -1,9 +1,9 @@
 # Workflow Manager!
 Your very own workflow manager.
 
-## Docs
+## Documentation
 
-1. **CreateWorkflow.py** contains a predefined user input as received from UI. This input is used to create workflow with all the provided tasks. After creation of workflow object, processes for each task are started. These processes takes input from relevant task-input queue, computes the result and feed it to relevant task-output queues.
+1. **CreateWorkflow.py** contains a predefined user input as received from UI. This input is used to create workflow with all the provided tasks. After creation of workflow object, processes for each task are started. These processes takes input from relevant task-input queue, computes the result, checks if result satisfies given condition (feed result to relevant task-output queues if condition is satisfied else don't go further).
 2. **Workflow.py** contains class declaration for workflow.
 3. **Task.py** contains class declaration for all available tasks.
 4. **test_producer.py** produces input for workflow for testing.

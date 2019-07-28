@@ -26,8 +26,19 @@ if __name__ == '__main__':
             6: {'name': 'product', 'user_provided_name': 'Task F', 'user_provided_desc': 'Multiply numbers'}
         },
         'task_relationship': {
-            1: [2]
+            1: [{'con': None, 'out': 2}],
+            2: [{'con': None, 'out': 3}, {'con': None, 'out': 4}],
+            3: [{'con': None, 'out': 5}],
+            4: [{'con': None, 'out': 5}],
+            5: [{'con': '<', 'out': 6}]
         },
+        # 'task_relationship': {
+        #     1: [{'con': None, 'out': 2}],
+        #     2: [{'con': None, 'out': 3}, {'con': None, 'out': 4}],
+        #     3: [{'con': None, 'out': 5}],
+        #     4: [{'con': None, 'out': 5}],
+        #     5: [{'con': '>', 'out': 6}]
+        # },
         'start_task': 1
     }
 
@@ -37,3 +48,4 @@ if __name__ == '__main__':
 
     # Start workflow tasks as separate processes
     start_tasks(workflow)
+
