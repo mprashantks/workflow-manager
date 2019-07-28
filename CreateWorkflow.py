@@ -3,11 +3,12 @@ import multiprocessing
 
 
 def start_tasks(workflow):
+    print('Workflow Input `{}`'.format(workflow.input))
     pool = multiprocessing.Pool(processes=workflow.parallel_limit)
 
     for task in workflow.tasks.values():
         for i in range(task.parallel_limit):
-            pool.apply_async(task.consume, args=(i,))
+            pool.apply_async(task.consume)
 
     pool.close()
     pool.join()
@@ -24,11 +25,7 @@ if __name__ == '__main__':
             6: {'name': 'product', 'user_provided_name': 'Task F', 'user_provided_desc': 'Multiply numbers'}
         },
         'task_relationship': {
-            1: [2],
-            2: [3, 4],
-            3: [5],
-            4: [5],
-            5: [6]
+            1: [2]
         },
         'start_task': 1
     }

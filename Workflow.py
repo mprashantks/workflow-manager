@@ -78,7 +78,7 @@ class Workflow:
                     )
 
             if not task_obj.output:
-                task_obj_output = 'wf.{0}.out{1}'.format(self.id, self.num_output+1)
+                task_obj_output = 'wf.{0}.out{1}'.format(self.name, self.num_output+1)
                 task_obj.output.append(task_obj_output)
                 self.output.append(task_obj_output)
                 self.num_output += 1
