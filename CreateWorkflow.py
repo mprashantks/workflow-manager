@@ -15,6 +15,7 @@ def start_tasks(workflow):
 
 
 if __name__ == '__main__':
+    # User Input received from UI in form of JSON
     ui_input = {
         'task_info': {
             1: {'name': 'add', 'user_provided_name': 'Task A', 'user_provided_desc': 'Add two numbers'},
@@ -31,6 +32,8 @@ if __name__ == '__main__':
     }
 
     workflow = Workflow(name='test')
+    # Create workflow from provided input
     workflow.create_workflow(user_input=ui_input)
 
+    # Start workflow tasks as separate processes
     start_tasks(workflow)
